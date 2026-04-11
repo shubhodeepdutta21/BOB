@@ -1,4 +1,4 @@
-# GREY# 🤖 BOB: The Smart Hardware DIY Platform
+# GREY# 🤖 BOB: The Smart DIY Platform
 
 ![BOB Platform Cover](public/your-cover-image.png) **Turn your spare parts into brilliant projects.** BOB is an innovative platform designed to empower students and makers with limited resources. Tell us what hardware you have lying around, and we will tell you exactly what you can build. Stop watching tutorials for projects you don't have the parts for.
 
