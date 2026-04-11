@@ -26,9 +26,12 @@ export default function Home() {
           <Link href="/inventory" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
             My Inventory
           </Link>
-          <button className="px-4 py-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/10">
+          <Link
+            href="/login"
+            className="px-4 py-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/10"
+          >
             Sign In
-          </button>
+          </Link>
         </div>
       </nav>
 
