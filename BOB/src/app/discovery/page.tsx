@@ -1,13 +1,39 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useInventory } from '@/lib/InventoryContext';
 import { MOCK_PROJECTS, MOCK_COMPONENTS } from '@/lib/mockData';
 import { CheckCircle2, CircleDashed, Clock, Sparkles, Loader2, Bot } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function DiscoveryPage() {
   const { inventory, getQuantity } = useInventory();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Check initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+    getSession();
+
+    // Listen for changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    // Optional: send them to login page after sign out
+    // window.location.href = '/login'; 
+  };
 
   // ✨ NEW AI STATES ✨
   const [isGenerating, setIsGenerating] = useState(false);
@@ -75,14 +101,22 @@ export default function DiscoveryPage() {
 
   return (
     <main className="min-h-screen flex flex-col pt-6 px-4 md:px-8 max-w-6xl mx-auto w-full">
+
+      {/* ✨ CLEANED UP HEADER SECTION ✨ */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-4 border-b border-white/10 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Project Discovery</h1>
           <p className="text-slate-400">Based on your inventory, here is what you can build today.</p>
+
+          {/* User Info Display */}
+          {user && (
+            <p className="text-sm text-indigo-400 mt-2 font-medium">
+              Logged in as: {user.email}
+            </p>
+          )}
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* ✨ THE MAGIC AI BUTTON ✨ */}
+        <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={generateMagicProject}
             disabled={isGenerating || inventory.length === 0}
@@ -95,6 +129,23 @@ export default function DiscoveryPage() {
           <Link href="/inventory" className="px-4 py-2 text-sm font-medium border border-white/20 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
             Update Inventory
           </Link>
+
+          {/* Sign Out / Sign In Button */}
+          {user ? (
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 text-sm font-medium border border-rose-500/30 text-rose-400 hover:text-white hover:bg-rose-500/20 rounded-lg transition-colors"
+            >
+              Sign Out
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm font-medium border border-indigo-500/30 text-indigo-400 hover:text-white hover:bg-indigo-500/20 rounded-lg transition-colors"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
 

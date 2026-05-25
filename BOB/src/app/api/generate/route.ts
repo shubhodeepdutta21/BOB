@@ -28,7 +28,6 @@ export async function POST(request: Request) {
       }
     `;
 
-        // Using the new generateContent syntax with Gemini 2.5 Flash!
         const response = await client.chat.completions.create({
             model: "llama-3.1-8b",  // or "llama3.1-8b" 
             messages: [{ role: "user", content: prompt }],
