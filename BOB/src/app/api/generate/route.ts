@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import Cerebras from "@cerebras/cerebras_cloud_sdk";
 
-// Initialize the brand new GenAI client
-// It will automatically find your GEMINI_API_KEY from your .env.local!
-const ai = new GoogleGenAI({});
 
 export async function POST(request: Request) {
+    const client = new Cerebras({ apiKey: process.env.CEREBRAS_API_KEY });
     try {
         const body = await request.json();
         const { componentNames } = body;
@@ -31,17 +29,15 @@ export async function POST(request: Request) {
     `;
 
         // Using the new generateContent syntax with Gemini 2.5 Flash!
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
+        const response = await client.chat.completions.create({
+            model: "llama-3.1-8b",  // or "llama3.1-8b" 
+            messages: [{ role: "user", content: prompt }],
+            max_completion_tokens: 500,
+            response_format: { type: "json_object" },
         });
 
-        // The new SDK makes getting the text response slightly cleaner too
-        const responseText = response.text || "";
-
-        // Clean up the response just in case the AI added markdown blocks
-        const cleanJson = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
-        const generatedProject = JSON.parse(cleanJson);
+        const content = response.choices?.[0]?.message?.content;
+        const generatedProject = JSON.parse(content || "{}");
 
         return NextResponse.json({ project: generatedProject });
 

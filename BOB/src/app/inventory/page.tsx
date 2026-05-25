@@ -4,13 +4,12 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useInventory } from '@/lib/InventoryContext';
 
-import { supabase } from '@/lib/db'; // ✅ IMPORT your Supabase client instead!
+import { supabase } from '@/lib/db';
 import { Cpu, Plus, Minus, ArrowRight, Trash2 } from 'lucide-react';
 
 export default function InventoryPage() {
   const { addToInventory, removeFromInventory, getQuantity, clearInventory } = useInventory();
 
-  // Create a state to hold our real database components!
   const [components, setComponents] = useState<any[]>([]);
 
   // Fetch the data as soon as the page loads ⏳
@@ -27,7 +26,6 @@ export default function InventoryPage() {
     fetchComponents();
   }, []);
 
-  // Group components by category (using our new 'components' state instead of MOCK!)
   const groupedComponents = components.reduce((acc, current) => {
     (acc[current.category] = acc[current.category] || []).push(current);
     return acc;
