@@ -20,6 +20,9 @@ export default function Home() {
           </span>
         </div>
         <div className="flex items-center gap-4">
+          <Link href="/community" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+            Community
+          </Link>
           <Link href="/discovery" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
             Discover Projects
           </Link>
