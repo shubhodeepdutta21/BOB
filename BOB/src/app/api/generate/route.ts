@@ -4,6 +4,14 @@ import Cerebras from "@cerebras/cerebras_cloud_sdk";
 
 export async function POST(request: Request) {
     const client = new Cerebras({ apiKey: process.env.CEREBRAS_API_KEY });
+
+    if (!process.env.CEREBRAS_API_KEY) {
+        return NextResponse.json(
+            { error: "CEREBRAS_API_KEY is not set" },
+            { status: 500 }
+        );
+    }
+
     try {
         const body = await request.json();
         const { componentNames } = body;
@@ -29,14 +37,25 @@ export async function POST(request: Request) {
     `;
 
         const response = await client.chat.completions.create({
-            model: "llama-3.1-8b",  // or "llama3.1-8b" 
+            model: "gpt-oss-120b",
             messages: [{ role: "user", content: prompt }],
-            max_completion_tokens: 500,
-            response_format: { type: "json_object" },
-        });
+            max_tokens: 1024,                          // ✅ correct parameter
+            response_format: { type: "json_object" } as any,
+        }) as any;
 
-        const content = response.choices?.[0]?.message?.content;
-        const generatedProject = JSON.parse(content || "{}");
+        const content = response.choices?.[0]?.message?.content ?? "";
+
+        let generatedProject = {};
+        try {
+            generatedProject = JSON.parse(content || "{}");
+        } catch (e) {
+            console.error("Failed to parse AI response:", e);
+            // ✅ Actually tell the client something went wrong
+            return NextResponse.json(
+                { error: "AI returned malformed JSON. Please try again." },
+                { status: 500 }
+            );
+        }
 
         return NextResponse.json({ project: generatedProject });
 
